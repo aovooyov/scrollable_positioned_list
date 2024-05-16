@@ -347,6 +347,10 @@ class _ScrollablePositionedListState extends State<ScrollablePositionedList>
         widget.scrollOffsetNotifier?.changeController.add(offsetChange);
       }
     });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      widget.scrollController?.attach(primary.scrollController.position);
+    });
   }
 
   @override
@@ -354,17 +358,21 @@ class _ScrollablePositionedListState extends State<ScrollablePositionedList>
     super.activate();
     widget.itemScrollController?._attach(this);
     widget.scrollOffsetController?._attach(this);
+    widget.scrollController?.attach(primary.scrollController.position);
   }
 
   @override
   void deactivate() {
     widget.itemScrollController?._detach();
     widget.scrollOffsetController?._detach();
+    widget.scrollController?.detach(primary.scrollController.position);
     super.deactivate();
   }
 
   @override
   void dispose() {
+    widget.scrollController?.detach(primary.scrollController.position);
+
     primary.itemPositionsNotifier.itemPositions
         .removeListener(_updatePositions);
     secondary.itemPositionsNotifier.itemPositions
@@ -405,11 +413,6 @@ class _ScrollablePositionedListState extends State<ScrollablePositionedList>
 
   @override
   Widget build(BuildContext context) {
-    if (widget.scrollController?.positions.isEmpty == true)
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        widget.scrollController?.attach(primary.scrollController.position);
-      });
-
     return LayoutBuilder(
       builder: (context, constraints) {
         final cacheExtent = _cacheExtent(constraints);
@@ -615,10 +618,6 @@ class _ScrollablePositionedListState extends State<ScrollablePositionedList>
     if (mounted) {
       setState(() {
         if (opacity.value >= 0.5) {
-          if (widget.scrollController?.position != null) {
-            widget.scrollController?.detach(widget.scrollController!.position);
-          }
-
           // Secondary [ListView] is more visible than the primary; make it the
           // new primary.
           var temp = primary;
