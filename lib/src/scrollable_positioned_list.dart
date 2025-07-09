@@ -356,9 +356,14 @@ class _ScrollablePositionedListState extends State<ScrollablePositionedList>
   @override
   void activate() {
     super.activate();
-    widget.itemScrollController?._attach(this);
-    widget.scrollOffsetController?._attach(this);
-    widget.scrollController?.attach(primary.scrollController.position);
+
+    try {
+      widget.itemScrollController?._attach(this);
+      widget.scrollOffsetController?._attach(this);
+      widget.scrollController?.attach(primary.scrollController.position);
+    } catch (e) {
+
+    }
   }
 
   @override
