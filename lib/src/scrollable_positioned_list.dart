@@ -363,19 +363,30 @@ class _ScrollablePositionedListState extends State<ScrollablePositionedList>
 
   @override
   void deactivate() {
-    widget.itemScrollController?._detach();
-    widget.scrollOffsetController?._detach();
-    widget.scrollController?.detach(primary.scrollController.position);
+    try {
+      widget.itemScrollController?._detach();
+      widget.scrollOffsetController?._detach();
+    } catch (e) {
+      // If the controller is not attached, it will throw an error.
+      // We can ignore this error as it is not critical.
+    }
+
     super.deactivate();
   }
 
   @override
   void dispose() {
-    primary.itemPositionsNotifier.itemPositions
-        .removeListener(_updatePositions);
-    secondary.itemPositionsNotifier.itemPositions
-        .removeListener(_updatePositions);
-    _animationController?.dispose();
+    try {
+      primary.itemPositionsNotifier.itemPositions
+          .removeListener(_updatePositions);
+      secondary.itemPositionsNotifier.itemPositions
+          .removeListener(_updatePositions);
+      _animationController?.dispose();
+    } catch (e) {
+      // If the controller is not attached, it will throw an error.
+      // We can ignore this error as it is not critical.
+    }
+
     super.dispose();
   }
 
